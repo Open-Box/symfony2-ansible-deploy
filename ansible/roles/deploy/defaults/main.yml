@@ -1,0 +1,11 @@
+---
+sf2_project_release: ~
+sf2_project_php_path: php
+sf2_project_keep_releases: 1
+sf2_project_clean_versioning: true
+sf2_project_console_opts: ''
+sf2_project_composer_opts: '--no-dev --optimize-autoloader --no-interaction'
+sf2_fire_migrations: false
+sf2_console_path: bin/console
+sf2_logs_path: var/logs
+sf2_project_composer_path: "{{ sf2_project_root }}"

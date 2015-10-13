@@ -1,0 +1,18 @@
+---
+- hosts: webservers
+  vars:
+    app_remote_env: testing
+    sf2_project_env: prod
+    sf2_project_name: MyAwesomeProject
+    sf2_project_repo: https://github.com/spectre/MyAwesomeProject.git
+    sf2_project_branch: develop
+    ansible_ssh_user: root
+
+  vars_files:
+    - "roles/deploy/vars/{{ app_remote_env }}.yml"
+
+  roles:
+    - deploy
+
+  tasks:
+    - local_action: shell espeak -v mb-en "Your project has been deployed sir!"

@@ -1,0 +1,24 @@
+---
+    # Default DB Parameters
+    db_driver: pdo_mysql
+    db_host: project-prod-db-host
+    db_port: null
+    db_name: project-prod-db-name
+    db_user: project-prod-db-user
+    db_password: project-prod-db-password
+
+    # Other sensible paramenters
+    mailer_transport:  smtp
+    mailer_host:       127.0.0.1
+    mailer_user:       ~
+    mailer_password:   ~
+
+    locale:            en
+    secret:            OMyGodIMSecret!
+
+    debug_toolbar:          true
+    debug_redirects:        false
+    use_assetic_controller: true
+
+    # Project remote folder
+    sf2_project_root: /home/vhosts/project-prod

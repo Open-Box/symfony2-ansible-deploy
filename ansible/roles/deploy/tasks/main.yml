@@ -1,0 +1,86 @@
+---
+# Tasks file for symfony2
+- set_fact: sf2_project_release={{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}
+  when: sf2_project_release == None
+
+- name: Create/prepare directories for release and shared data.
+  file: state=directory path={{ item.path }}
+  with_items:
+    - { path: "{{ sf2_project_root }}/releases/{{ sf2_project_release }}" }
+    - { path: "{{ sf2_project_root }}/shared" }
+    - { path: "{{ sf2_project_root }}/shared/app/config" }
+    - { path: "{{ sf2_project_root }}/shared/{{ sf2_logs_path }}" }
+    - { path: "{{ sf2_project_root }}/shared/web/uploads" }
+
+- name: Pull sources from the repository.
+  git: repo={{ sf2_project_repo }}
+       dest={{ sf2_project_root }}/releases/{{ sf2_project_release }}
+       version={{ sf2_project_branch }}
+       accept_hostkey=yes
+
+- name: Clean out versioning.
+  file: state=absent
+        path={{ sf2_project_root }}/releases/{{ sf2_project_release }}/.git
+  when: sf2_project_clean_versioning == true
+
+# will be replaced with symlink
+- name: Ensure logs directory is not present.
+  file: state=absent
+        path={{ sf2_project_root }}/releases/{{ sf2_project_release }}/{{ sf2_logs_path }}
+
+- name: Create symlinks to shared directories.
+  file: state=link
+        src={{ item.src }}
+        path={{ item.path }}
+  with_items:
+    - { src: "{{ sf2_project_root }}/shared/{{ sf2_logs_path }}", path: "{{ sf2_project_root }}/releases/{{ sf2_project_release }}/{{ sf2_logs_path }}" }
+    - { src: "{{ sf2_project_root }}/shared/web/uploads", path: "{{ sf2_project_root }}/releases/{{ sf2_project_release }}/web/uploads" }
+
+- name: Check if config dir exists.
+  stat: path={{ sf2_project_root }}/releases/{{ sf2_project_release }}/app/config
+  register: config_dir
+
+- name: Link configs dir if not yet exists.
+  file: state=link src={{ sf2_project_root }}/shared/app/config
+        path={{ sf2_project_root }}/releases/{{ sf2_project_release }}/app/config
+  when: config_dir.stat.exists == false
+
+- name: Check if composer exists.
+  stat: path={{ sf2_project_composer_path }}/composer.phar
+  register: composer_file
+
+- name: Install composer.
+  get_url: url=https://getcomposer.org/composer.phar
+           dest={{ sf2_project_composer_path }}
+           mode=0755
+           validate_certs=no
+  when: composer_file.stat.exists == false
+
+- name: Update composer if already exists.
+  shell: "{{ sf2_project_composer_path }}/composer.phar selfupdate"
+  when: composer_file.stat.exists == true
+
+- name: Create app/config/parameters.yml
+  template:
+    src=parameters.j2
+    dest={{ sf2_project_root }}/releases/{{ sf2_project_release }}/app/config/parameters.yml
+
+- name: Run composer install.
+  shell: cd {{ sf2_project_root }}/releases/{{ sf2_project_release }} && export SYMFONY_ENV={{ sf2_project_env }} && {{ sf2_project_php_path }} {{ sf2_project_composer_path }}/composer.phar install {{ sf2_project_composer_opts }}
+
+- name: Assetic dump.
+  shell: cd {{ sf2_project_root }}/releases/{{ sf2_project_release }} && {{ sf2_project_php_path }} {{ sf2_console_path }} assetic:dump --env={{ sf2_project_env }} {{ sf2_project_console_opts }}
+
+- name: Assets install.
+  shell: cd {{ sf2_project_root }}/releases/{{ sf2_project_release }} && {{ sf2_project_php_path }} {{ sf2_console_path }} assets:install web --symlink --env={{ sf2_project_env }} {{ sf2_project_console_opts }}
+
+- name: Run migrations.
+  shell: cd {{ sf2_project_root }}/releases/{{ sf2_project_release }} && if $(grep doctrine-migrations-bundle composer.json); then {{ sf2_project_php_path }} {{ sf2_console_path }} doctrine:migrations:migrate -n; fi
+  when: sf2_fire_migrations == true
+
+- name: Create symlink.
+  file: state=link src={{ sf2_project_root }}/releases/{{ sf2_project_release }}
+        path={{ sf2_project_root }}/current
+
+- name: Cleanup releases.
+  shell: cd {{ sf2_project_root }}/releases && ls -t1 | tail -n +$(({{ sf2_project_keep_releases }}+1)) | xargs -n1 rm -rf
