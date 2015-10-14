@@ -9,7 +9,7 @@ An Ansible playbook for deploying Symfony2 apps, with a lot of features and sens
 The long story
 --------------
 
-The project is an [Ansible](http://www.ansible.com/) playbook to easily deploy [Symfony2](http://symfony.com/) apps, it takes inspiration from some projects hat you can find on the net, our main credits go to [servergrove/ansible-symfony2](https://github.com/servergrove/ansible-symfony2).
+The project is an [Ansible](http://www.ansible.com/) playbook to easily deploy [Symfony2](http://symfony.com/) apps, it takes inspiration from some projects that you can find on the net, our main credits go to [servergrove/ansible-symfony2](https://github.com/servergrove/ansible-symfony2).
 
 We made this playbook to playbook fit our needs, specifically the main features are:
 
