@@ -14,7 +14,7 @@
     mailer_password:   ~
 
     locale:            en
-    secret:            OMyGodIMSecret!
+    secret:            OhMyGodItsSecret!
 
     debug_toolbar:          true
     debug_redirects:        false
