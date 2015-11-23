@@ -1,44 +1,31 @@
-Symfony2-Ansible deploy
-=======================
-
-tl;dr
------
-
+# Symfony2-Ansible deploy
+## tl;dr
 An Ansible playbook for deploying Symfony2 apps, with a lot of features and sensible defaults.
 
-The long story
---------------
+## The long story
+The project is an [Ansible](http://www.ansible.com/) playbook to easily deploy [Symfony2](http://symfony.com/) apps, it takes its inspiration from some projects hat you can find on the net, our main credits go to [servergrove/ansible-symfony2](https://github.com/servergrove/ansible-symfony2).
 
-The project is an [Ansible](http://www.ansible.com/) playbook to easily deploy [Symfony2](http://symfony.com/) apps, it takes inspiration from some projects hat you can find on the net, our main credits go to [servergrove/ansible-symfony2](https://github.com/servergrove/ansible-symfony2).
+We made that playbook to fit our needs, specifically the main features are:
+- Self-contained project, all you need is the **ansible** folder, everything is there.
+- Deploy from the git repo of the code, of course you can choose witch branch/tag/version to deploy.
+- Support for multiple environment of the app, you can deploy a production version, a testing, a demo, etc... whatever you need !
+- Support for multiple releases of the same environment of the the app, switch between them by simply changing a symlink. You can also choose how many older version of the app you want to keep.
+- You can choose the name of the folder in which an app version will be deployed, otherwise the playbook will create a directory name from a timestamp.
+- You can specify the Symfony's _console_ command location and the Symfony's _log_ directory, this makes us [Symfony3](http://symfony.com/blog/symfony-3-0-the-roadmap) compliant !
+- Standard defaults are provided for all config options, you can run the playbook without overriding any of them, you'll get the work done !
 
-We made this playbook to playbook fit our needs, specifically the main features are:
+These and other features can be configured via Ansible options, for a full list see below, in the configuration section.
 
--	Self-contained project, all you need is the **ansible** folder, everything is there.
--	Deploy from the git repo of the code, for sure you can choose witch branch/tag/version to deploy.
--	Support for multiple environment of the app, you can deploy a production version, a testing, a demo, etc... whatever you need !
--	Support for multiple releases of the same environment of the the app, switch between them by simply changing a symlink. You can also choose how many older version of the app you want to keep.
--	You can choose the name of the folder in witch an app version will be deployed, otherwise the playbook will create a directory name from a timestamp.
--	You can specify the Symfony's *console* command location and the Symfony's *log* directory, this makes us [Symfony3](http://symfony.com/blog/symfony-3-0-the-roadmap) compliant !
--	Standard defaults are provided for all config options, you can run the playbook without overriding none of them, you'll get the work done !
+## Installation
+Just clone the repository and put the _ansible_ folder in your Symfony2 project, we suggest `app/Resources/ansible`, but any location will be fine, depending on your needs.
 
-These and other features can be configured via Ansible options, for a full list look below, in the configuration section.
-
-Installation
-------------
-
-Just clone the repository and put the *ansible* folder in your Symfony2 project, we suggest `app/Resources/ansible`, but any location will be fine, depending on your needs.
-
-Configuration
--------------
-
+## Configuration
 Configuration is easy, basically you need to put your environment setting in the following files:
 
 ### hosts
-
-You guessed it, it's the Ansible *host* file, put your deployment servers there.
+You've guessed it, it's the Ansible _host_ file, put your deployment servers there.
 
 ### deploy.yml
-
 There you can find some of the most used settings, specifically:
 
 ```
@@ -51,8 +38,7 @@ ansible_ssh_user: root # Ansible remote user.
 ```
 
 ### ansible/roles/deploy/defaults/main.yml
-
-Here are the other setting:
+Here are the other settings:
 
 ```
 sf2_project_release: ~ # Project release name for the given environment, if non is specified a timestamp will be used.
@@ -68,8 +54,7 @@ sf2_project_composer_path: "{{ sf2_project_root }}" # Composer path.
 ```
 
 ### ansible/roles/deploy/defaults/vars
-
-This folder holds the configuration for your various environments, they can be as many as you need, just name them propely and refer to them when you run the playbook. Two sample environments are given, here's a shoot of the *prod.yml* confguration:
+This folder holds the configuration for your various environments, there can be as many as you need, just name them properly and refer to them when you run the playbook. Two sample environments are given, here's a shot of the _prod.yml_ confguration:
 
 ```
 # Default DB Parameters
@@ -97,25 +82,19 @@ use_assetic_controller: true
 sf2_project_root: /home/vhosts/project-prod # Project destination directory.
 ```
 
-Usage
------
-
+## Usage
 Run the playbook as usual:
 
 ```
 ansible-playbook -l webservers -i app/Resources/ansible/hosts app/Resources/ansible/deploy.yml -v -e "app_remote_env=dev"
 ```
 
-The above example runs the playbook and specifies to use the dev environment.
+The above example runs the playbook and specifies using the dev environment.
 
-Todo
-----
-
+## Todo
 - Better docs !
-- Future enanchement may include the incapsulation of the playbook into a bundle or as a Gulp task,
-make your proposal !
+- Future enanchement may include the encapsulation of the playbook into a bundle or as a Gulp task,
+- make your suggestion !
 
-Contributing
-------------
-Feedback, PR and suggestion are welcome !
-
+## Contributing
+Feedback, PR and suggestions are welcome !
